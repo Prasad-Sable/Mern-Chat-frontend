@@ -20,7 +20,7 @@ import axios from "axios";
 import io from "socket.io-client";
 import animationData from "../animations/typing.json";
 
-const ENDPOINT = "http://localhost:5800";
+const ENDPOINT = "https://pixelchat-gla8.onrender.com";
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
