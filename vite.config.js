@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   server:{
       proxy:{
-        "/api": 'http://localhost:5800',
+        "/api": 'https://pixelchat-gla8.onrender.com',
       }
   },
   plugins: [react()],
