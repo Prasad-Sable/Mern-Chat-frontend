@@ -138,7 +138,7 @@ const SideDrawer = () => {
           </Button>
         </Tooltip>
         <Text fontFamily="Work sans" fontSize="3xl">
-          Mern-Chat
+          Pixel-Chat
         </Text>
         <div>
           <Menu>
