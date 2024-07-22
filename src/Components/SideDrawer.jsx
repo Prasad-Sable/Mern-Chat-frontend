@@ -29,6 +29,7 @@ import ChatLoading from "./ChatLoading";
 import UserListItem from "./userAvatar/UserListItem";
 import { Badge, IconButton } from "@material-tailwind/react";
 import { getSender } from "./ChatLogic";
+import { clientApi } from "../lib/ClientApi";
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -74,7 +75,7 @@ const SideDrawer = () => {
         },
       };
 
-      const { data } = await axios.get(`/api/users?search=${search}`, config);
+      const { data } = await clientApi.get(`/api/users?search=${search}`, config);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -100,7 +101,7 @@ const SideDrawer = () => {
           Authorization: ` Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post("/api/chats", { userId }, config);
+      const { data } = await clientApi.post("/api/chats", { userId }, config);
       console.log(data);
 
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);

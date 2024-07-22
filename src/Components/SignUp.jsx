@@ -11,6 +11,7 @@ import React, { useState } from "react";
 import { useToast } from "@chakra-ui/toast";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { clientApi } from "../lib/ClientApi";
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
@@ -59,7 +60,7 @@ const SignUp = () => {
       data.append("file", pics);
       data.append("upload_preset", "mern-chat");
       data.append("cloud_name", "dev-prasad");
-      axios
+      clientApi
         .post("https://api.cloudinary.com/v1_1/dev-prasad/image/upload", data)
         .then((response) => {
           console.log("Cloudinary response:", response);
