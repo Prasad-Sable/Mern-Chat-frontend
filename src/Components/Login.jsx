@@ -39,7 +39,7 @@ const Login = () => {
 
     try {
       const config = { headers: { "Content-type": "application/json" } };
-      const { data } = await axios.post(`http://localhost:5800/api/users/login`, { email, password }, config);
+      const { data } = await axios.post(`https://pixelchat-gla8.onrender.com/api/users/login`, { email, password }, config);
 
       toast({
         title: "Login Successful",
