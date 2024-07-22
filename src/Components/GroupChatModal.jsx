@@ -19,8 +19,6 @@ import axios from "axios";
 import UserListItem from "./userAvatar/UserListItem";
 import UserBadgeItem from "./UserBadgeItem";
 
-const baseUrl = import.meta.env.SERVER_URI
-
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -46,7 +44,7 @@ const GroupChatModal = ({ children }) => {
         },
       };
 
-      const { data } = await axios.get(`${baseUrl}/api/users?search=${search}`, config);
+      const { data } = await axios.get(`/api/users?search=${search}`, config);
       console.log(data);
       setLoading(false);
       setSearchResult(data);
@@ -80,7 +78,7 @@ const GroupChatModal = ({ children }) => {
         },
       };
       const { data } = await axios.post(
-        `${baseUrl}/api/chats/group`,
+        `/api/chats/group`,
         {
           name: groupChatName,
           users: JSON.stringify(selectedUsers.map((u) => u._id)),

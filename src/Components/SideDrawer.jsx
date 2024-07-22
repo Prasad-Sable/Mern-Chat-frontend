@@ -30,7 +30,6 @@ import UserListItem from "./userAvatar/UserListItem";
 import { Badge, IconButton } from "@material-tailwind/react";
 import { getSender } from "./ChatLogic";
 
-const baseUrl = import.meta.env.SERVER_URI
 
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
@@ -76,7 +75,7 @@ const SideDrawer = () => {
         },
       };
 
-      const { data } = await axios.get(`${baseUrl}}/api/users?search=${search}`, config);
+      const { data } = await axios.get(`/api/users?search=${search}`, config);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
