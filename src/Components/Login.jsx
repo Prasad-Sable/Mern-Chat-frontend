@@ -7,7 +7,7 @@ import axios from "axios";
 import { useToast } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import { useNavigate } from "react-router-dom";
-import { clientApi } from "../lib/ClientApi";
+
 
 
 const Login = () => {
@@ -37,7 +37,7 @@ const Login = () => {
 
     try {
       const config = { headers: { "Content-type": "application/json" } };
-      const { data } = await clientApi.post("/api/users/login", { email, password }, config);
+      const { data } = await axios.post("/api/users/login", { email, password }, config);
 
       toast({
         title: "Login Successful",

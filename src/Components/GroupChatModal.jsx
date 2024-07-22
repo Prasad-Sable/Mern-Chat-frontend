@@ -18,7 +18,7 @@ import { ChatState } from "../Context/ChatProvider";
 import axios from "axios";
 import UserListItem from "./userAvatar/UserListItem";
 import UserBadgeItem from "./UserBadgeItem";
-import { clientApi } from "../lib/ClientApi";
+
 
 const GroupChatModal = ({ children }) => {
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -77,7 +77,7 @@ const GroupChatModal = ({ children }) => {
           Authorization: `Bearer ${user.token}`,
         },
       };
-      const { data } = await clientApi.post(
+      const { data } = await axios.post(
         "/api/chats/group",
         {
           name: groupChatName,
