@@ -7,7 +7,7 @@ import {
   Text,
   useToast,
 } from "@chakra-ui/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { ChatState } from "../Context/ChatProvider";
 import ProfileModal from "./ProfileModal";
 import Lottie from "react-lottie";
@@ -22,8 +22,6 @@ import animationData from "../animations/typing.json";
 
 const ENDPOINT = "https://pixelchat-gla8.onrender.com";
 const apiUrl = import.meta.env.VITE_API_URL;
-
-let socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
@@ -44,6 +42,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   };
 
   const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
+  const selectedChatRef = useRef(selectedChat);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -79,29 +78,26 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket.on("connected", () => setSocketConnected(true));
     socket.on("typing", () => setIsTyping(true));
     socket.on("stop typing", () => setIsTyping(false));
+    socket.on("message received", (newMessageReceived) => {
+      if (!selectedChatRef.current || selectedChatRef.current._id !== newMessageReceived.chat._id) {
+        if (!notification.some((n) => n._id === newMessageReceived._id)) {
+          setNotification((prev) => [newMessageReceived, ...prev]);
+          setFetchAgain((prev) => !prev);
+        }
+      } else {
+        setMessages((prev) => [...prev, newMessageReceived]);
+      }
+    });
 
     return () => {
       socket.disconnect();
     };
-  }, [user]);
+  }, [user, notification, setFetchAgain, setNotification]);
 
   useEffect(() => {
     fetchMessages();
-    selectedChatCompare = selectedChat;
+    selectedChatRef.current = selectedChat;
   }, [selectedChat]);
-
-  useEffect(() => {
-    socket.on("message received", (newMessageReceived) => {
-      if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
-        if (!notification.includes(newMessageReceived)) {
-          setNotification([newMessageReceived, ...notification]);
-          setFetchAgain(!fetchAgain);
-        }
-      } else {
-        setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
-      }
-    });
-  }, [fetchAgain, notification, selectedChatCompare, setFetchAgain, setNotification]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
@@ -123,7 +119,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           config
         );
         socket.emit("new message", data);
-        setMessages((prevMessages) => [...prevMessages, data]);
+        setMessages((prev) => [...prev, data]);
       } catch (error) {
         toast({
           title: "Error Occurred!",
