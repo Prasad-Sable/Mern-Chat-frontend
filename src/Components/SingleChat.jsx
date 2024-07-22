@@ -21,6 +21,8 @@ import io from "socket.io-client";
 import animationData from "../animations/typing.json";
 
 const ENDPOINT = "https://pixelchat-gla8.onrender.com";
+
+const baseUrl = import.meta.env.SERVER_URI
 var socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
@@ -56,7 +58,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setLoading(true);
 
       const { data } = await axios.get(
-        `/api/messages/${selectedChat._id}`,
+        `${baseUrl}/api/messages/${selectedChat._id}`,
         config
       );
       console.log(messages);
@@ -117,7 +119,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
         };
         setNewMessage("");
         const { data } = await axios.post(
-          "/api/messages",
+          `${baseUrl}/api/messages`,
           {
             content: newMessage,
             chatId: selectedChat,
