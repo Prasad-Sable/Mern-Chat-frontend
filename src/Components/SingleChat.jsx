@@ -21,11 +21,9 @@ import io from "socket.io-client";
 import animationData from "../animations/typing.json";
 
 const ENDPOINT = "https://pixelchat-gla8.onrender.com";
+const apiUrl = import.meta.env.VITE_API_URL;
 
-
-const apiUrl = import.meta.env.VITE_API_URL
-
-var socket, selectedChatCompare;
+let socket, selectedChatCompare;
 
 const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [messages, setMessages] = useState([]);
@@ -33,7 +31,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
   const [newMessage, setNewMessage] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
   const [typing, setTyping] = useState(false);
-  const [istyping, setIsTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const toast = useToast();
 
   const defaultOptions = {
@@ -41,12 +39,11 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     autoplay: true,
     animationData: animationData,
     rendererSettings: {
-      preserveAspesctRatio: "xMidYMid slice",
+      preserveAspectRatio: "xMidYMid slice",
     },
   };
 
-  const { selectedChat, setSelectedChat, user, notification, setNotification } =
-    ChatState();
+  const { selectedChat, setSelectedChat, user, notification, setNotification } = ChatState();
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
@@ -59,18 +56,14 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       };
       setLoading(true);
 
-      const { data } = await axios.get(
-        `${apiUrl}/api/messages/${selectedChat._id}`,
-        config
-      );
-      console.log(messages);
+      const { data } = await axios.get(`${apiUrl}/api/messages/${selectedChat._id}`, config);
       setMessages(data);
       setLoading(false);
 
       socket.emit("join chat", selectedChat._id);
     } catch (error) {
       toast({
-        title: "Error Occured!",
+        title: "Error Occurred!",
         description: "Failed to Load the Messages",
         status: "error",
         duration: 5000,
@@ -84,9 +77,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     socket = io(ENDPOINT);
     socket.emit("setup", user);
     socket.on("connected", () => setSocketConnected(true));
-    socket.on("typing", () => setTyping(true));
-    socket.on("stop typing", () => setTyping(false));
-  }, []);
+    socket.on("typing", () => setIsTyping(true));
+    socket.on("stop typing", () => setIsTyping(false));
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [user]);
 
   useEffect(() => {
     fetchMessages();
@@ -95,19 +92,16 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
 
   useEffect(() => {
     socket.on("message received", (newMessageReceived) => {
-      if (
-        !selectedChatCompare ||
-        selectedChatCompare._id !== newMessageReceived.chat._id
-      ) {
+      if (!selectedChatCompare || selectedChatCompare._id !== newMessageReceived.chat._id) {
         if (!notification.includes(newMessageReceived)) {
           setNotification([newMessageReceived, ...notification]);
           setFetchAgain(!fetchAgain);
         }
       } else {
-        setMessages([...messages, newMessageReceived]);
+        setMessages((prevMessages) => [...prevMessages, newMessageReceived]);
       }
     });
-  }, []);
+  }, [fetchAgain, notification, selectedChatCompare, setFetchAgain, setNotification]);
 
   const sendMessage = async (event) => {
     if (event.key === "Enter" && newMessage) {
@@ -128,13 +122,12 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           },
           config
         );
-        console.log(data);
         socket.emit("new message", data);
-        setMessages([...messages, data]);
+        setMessages((prevMessages) => [...prevMessages, data]);
       } catch (error) {
         toast({
-          title: "Error Occured!",
-          description: "Failed to send the Messages",
+          title: "Error Occurred!",
+          description: "Failed to send the Message",
           status: "error",
           duration: 5000,
           isClosable: true,
@@ -144,11 +137,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
     }
   };
 
-  useEffect(() => {
-    socket = io(ENDPOINT);
-    socket.emit("setup", user);
-    socket.on("connection", () => setSocketConnected(true));
-  });
   const typingHandler = (e) => {
     setNewMessage(e.target.value);
 
@@ -158,11 +146,13 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
       setTyping(true);
       socket.emit("typing", selectedChat._id);
     }
-    let lastTypingTime = new Date().getTime();
-    var timerLength = 3000;
+
+    const lastTypingTime = new Date().getTime();
+    const timerLength = 3000;
+
     setTimeout(() => {
-      var timeNow = new Date().getTime();
-      var timeDiff = timeNow - lastTypingTime;
+      const timeNow = new Date().getTime();
+      const timeDiff = timeNow - lastTypingTime;
 
       if (timeDiff >= timerLength && typing) {
         socket.emit("stop typing", selectedChat._id);
@@ -194,9 +184,7 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
               (!selectedChat.isGroupChat ? (
                 <>
                   {getSender(user, selectedChat.users)}
-                  <ProfileModal
-                    user={getSenderFull(user, selectedChat.users)}
-                  />
+                  <ProfileModal user={getSenderFull(user, selectedChat.users)} />
                 </>
               ) : (
                 <>
@@ -221,36 +209,22 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
             overflowY="hidden"
           >
             {loading ? (
-              <Spinner
-                size="xl"
-                w={20}
-                h={20}
-                alignSelf="center"
-                margin="auto"
-              />
+              <Spinner size="xl" w={20} h={20} alignSelf="center" margin="auto" />
             ) : (
               <div className="messages">
                 <ScrollableChat messages={messages} />
               </div>
             )}
 
-            <FormControl
-              onKeyDown={sendMessage}
-              id="first-name"
-              isRequired
-              mt={3}
-            >
-              {istyping ? (
+            <FormControl onKeyDown={sendMessage} id="first-name" isRequired mt={3}>
+              {isTyping && (
                 <div>
                   <Lottie
                     options={defaultOptions}
-                    // height={50}
                     width={70}
                     style={{ marginBottom: 15, marginLeft: 0 }}
                   />
                 </div>
-              ) : (
-                <></>
               )}
               <Input
                 variant="filled"
@@ -263,7 +237,6 @@ const SingleChat = ({ fetchAgain, setFetchAgain }) => {
           </Box>
         </>
       ) : (
-        // to get socket.io on same page
         <Box d="flex" alignItems="center" justifyContent="center" h="100%">
           <Text fontSize="3xl" pb={3} fontFamily="Work sans">
             Click on a user to start chatting
