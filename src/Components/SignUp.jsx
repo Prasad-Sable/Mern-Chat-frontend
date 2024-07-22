@@ -13,6 +13,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 
+const apiUrl = import.meta.env.VITE_API_URL
 
 const SignUp = () => {
   const [show, setShow] = useState(false);
@@ -122,7 +123,7 @@ const SignUp = () => {
         },
       };
       const { data } = await axios.post(
-        `api/users`,
+        `${apiUrl}/api/users`,
         {
           name,
           email,

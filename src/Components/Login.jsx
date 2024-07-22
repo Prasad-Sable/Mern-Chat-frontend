@@ -8,6 +8,9 @@ import { useToast } from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import { useNavigate } from "react-router-dom";
 
+const apiUrl = import.meta.env.VITE_API_URL
+console.log(apiUrl)
+
 
 const Login = () => {
   const [show, setShow] = useState(false);
@@ -36,7 +39,7 @@ const Login = () => {
 
     try {
       const config = { headers: { "Content-type": "application/json" } };
-      const { data } = await axios.post(`/api/users/login`, { email, password }, config);
+      const { data } = await axios.post(`${apiUrl}/api/users/login`, { email, password }, config);
 
       toast({
         title: "Login Successful",

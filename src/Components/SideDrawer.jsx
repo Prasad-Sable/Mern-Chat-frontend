@@ -31,6 +31,9 @@ import { Badge, IconButton } from "@material-tailwind/react";
 import { getSender } from "./ChatLogic";
 
 
+const apiUrl = import.meta.env.VITE_API_URL
+
+
 const SideDrawer = () => {
   const [search, setSearch] = useState("");
   const [searchResult, setSearchResult] = useState([]);
@@ -75,7 +78,7 @@ const SideDrawer = () => {
         },
       };
 
-      const { data } = await axios.get(`/api/users?search=${search}`, config);
+      const { data } = await axios.get(`${apiUrl}/api/users?search=${search}`, config);
       setLoading(false);
       setSearchResult(data);
     } catch (error) {
@@ -101,7 +104,7 @@ const SideDrawer = () => {
           Authorization: ` Bearer ${user.token}`,
         },
       };
-      const { data } = await axios.post("/api/chats", { userId }, config);
+      const { data } = await axios.post(`${apiUrl}/api/chats`, { userId }, config);
       console.log(data);
 
       if (!chats.find((c) => c._id === data._id)) setChats([data, ...chats]);

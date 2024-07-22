@@ -10,6 +10,9 @@ import { ChatState } from "../Context/ChatProvider";
 import GroupChatModal from "./GroupChatModal";
 
 
+const apiUrl = import.meta.env.VITE_API_URL
+
+
 const MyChats = ({ fetchAgain }) => {
   const [loggedUser, setLoggedUser] = useState();
 
@@ -26,7 +29,7 @@ const MyChats = ({ fetchAgain }) => {
         },
       };
 
-      const { data } = await axios.get(`/api/chats`, config);
+      const { data } = await axios.get(`${apiUrl}/api/chats`, config);
       setChats(data);
     } catch (error) {
       toast({
